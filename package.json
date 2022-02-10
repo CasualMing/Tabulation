@@ -1,0 +1,40 @@
+{
+    "name": "tabulation",
+    "version": "0.0.1",
+    "description": "列表表格及分页 基于element-ui 组件进行二次封装",
+    "main": "index.js",
+    "scripts": {
+        "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
+    },
+    "keywords": [
+        "table",
+        "vue",
+        "element"
+    ],
+    "author": "CasualMing",
+    "license": "ISC",
+    "dependencies": {
+        "lodash.get": "^4.4.2",
+        "lodash.set": "^4.3.2"
+    },
+    "browserslist": [
+        "> 1%",
+        "last 2 versions",
+        "not ie <= 8"
+    ],
+    "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.0",
+        "babel-preset-stage-3": "^6.24.1",
+        "cross-env": "^5.0.5",
+        "css-loader": "^0.28.7",
+        "file-loader": "^1.1.4",
+        "node-sass": "^4.5.3",
+        "sass-loader": "^6.0.6",
+        "vue-loader": "^13.0.5",
+        "vue-template-compiler": "^2.5.19",
+        "webpack": "^3.6.0",
+        "webpack-dev-server": "^2.9.1"
+    }
+}
