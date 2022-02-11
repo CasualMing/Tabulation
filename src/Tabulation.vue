@@ -1,7 +1,7 @@
 <!--
  * @Author: CasualMing
  * @Date: 2021-11-24 09:29:43
- * @LastEditTime: 2022-02-10 08:35:33
+ * @LastEditTime: 2022-02-11 09:05:51
  * @Description: 基于element的table 表格进行的二次封装
  * @FilePath: \tabulation\src\Tabulation.vue
 -->
@@ -14,7 +14,6 @@
         :element-loading-background="loadingOptions ? handleAttribute(loadingOptions.background, 'rgba(255, 255, 255, 0.5)') : null"
     >
         <el-table
-            :class="isEmpty(options)? handleAttribute(options.bodyScoll,false) && 'tabeleScollClass' : '' "
             ref="elTable"
             :data="crudTableData"
             v-bind="options"
@@ -33,6 +32,9 @@
             @header-click="handleHeaderClick"
             @header-contextmenu="handleHeaderContextmenu"
             v-scroll-to-end="loadMore"
+            :header-row-class-name="headerRowClassName"
+            :header-row-style="headerRowStyle"
+            :header-cell-style="headerCellStyle"
         >
             <template #empty>
                 <slot name="empty">
@@ -133,24 +135,15 @@
                     v-if="handleShow(item.show, index, item)"
                 >
                     <template slot-scope="scope">
-                        <el-input
-                            v-if="item.component && item.component.name === 'el-input'"
-                            v-show="handleShow(item.component.show, index, scope.row)"
+                        <component
+                            v-if="item.component && isSingleComponent(item.component.name)"
+                            :is="item.component.name"
                             :disabled="handleDisabled(item.component.disabled, scope.$index, scope.row)"
                             v-model="scope.row[item.key]"
                             v-bind="item.component"
                             @change="cellDataChange(scope,item)"
                         >
-                        </el-input>
-                        <el-input-number
-                            v-else-if="item.component && item.component.name === 'el-input-number'"
-                            v-show="handleShow(item.component.show, index, scope.row)"
-                            :disabled="handleDisabled(item.component.disabled, scope.$index, scope.row)"
-                            v-model="scope.row[item.key]"
-                            v-bind="item.component"
-                            @change="cellDataChange(scope,item)"
-                        >
-                        </el-input-number>
+                        </component>
                         <el-radio-group
                             v-else-if="item.component && item.component.name === 'el-radio'"
                             v-show="handleShow(item.component.show, index, scope.row)"
@@ -220,78 +213,6 @@
                             >
                             </el-option>
                         </el-select>
-                        <el-cascader
-                            v-else-if="item.component && item.component.name === 'el-cascader'"
-                            v-show="handleShow(item.component.show, index, scope.row)"
-                            :disabled="handleDisabled(item.component.disabled, scope.$index, scope.row)"
-                            v-model="scope.row[item.key]"
-                            v-bind="item.component"
-                            @change="cellDataChange(scope,item)"
-                        >
-                        </el-cascader>
-                        <el-switch
-                            v-else-if="item.component && item.component.name === 'el-switch'"
-                            v-show="handleShow(item.component.show, index, scope.row)"
-                            :disabled="handleDisabled(item.component.disabled, scope.$index, scope.row)"
-                            v-model="scope.row[item.key]"
-                            v-bind="item.component"
-                            @change="cellDataChange(scope,item)"
-                        >
-                        </el-switch>
-                        <el-slider
-                            v-else-if="item.component && item.component.name === 'el-slider'"
-                            v-show="handleShow(item.component.show, index, scope.row)"
-                            :disabled="handleDisabled(item.component.disabled, scope.$index, scope.row)"
-                            v-model="scope.row[item.key]"
-                            v-bind="item.component"
-                            @change="cellDataChange(scope,item)"
-                        >
-                        </el-slider>
-                        <el-time-select
-                            v-else-if="item.component && item.component.name === 'el-time-select'"
-                            v-show="handleShow(item.component.show, index, scope.row)"
-                            :disabled="handleDisabled(item.component.disabled, scope.$index, scope.row)"
-                            v-model="scope.row[item.key]"
-                            v-bind="item.component"
-                            @change="cellDataChange(scope,item)"
-                        >
-                        </el-time-select>
-                        <el-time-picker
-                            v-else-if="item.component && item.component.name === 'el-time-picker'"
-                            v-show="handleShow(item.component.show, index, scope.row)"
-                            :disabled="handleDisabled(item.component.disabled, scope.$index, scope.row)"
-                            v-model="scope.row[item.key]"
-                            v-bind="item.component"
-                            @change="cellDataChange(scope,item)"
-                        >
-                        </el-time-picker>
-                        <el-date-picker
-                            v-else-if="item.component && item.component.name === 'el-date-picker'"
-                            v-show="handleShow(item.component.show, index, scope.row)"
-                            :disabled="handleDisabled(item.component.disabled, scope.$index, scope.row)"
-                            v-model="scope.row[item.key]"
-                            v-bind="item.component"
-                            @change="cellDataChange(scope,item)"
-                        >
-                        </el-date-picker>
-                        <el-rate
-                            v-else-if="item.component && item.component.name === 'el-rate'"
-                            v-show="handleShow(item.component.show, index, scope.row)"
-                            :disabled="handleDisabled(item.component.disabled, scope.$index, scope.row)"
-                            v-model="scope.row[item.key]"
-                            v-bind="item.component"
-                            @change="cellDataChange(scope,item)"
-                        >
-                        </el-rate>
-                        <el-color-picker
-                            v-else-if="item.component && item.component.name === 'el-color-picker'"
-                            v-show="handleShow(item.component.show, index, scope.row)"
-                            :disabled="handleDisabled(item.component.disabled, scope.$index, scope.row)"
-                            v-model="scope.row[item.key]"
-                            v-bind="item.component"
-                            @change="cellDataChange(scope,item)"
-                        >
-                        </el-color-picker>
                         <render-custom-component
                             v-else-if="item.component && item.component.name"
                             v-show="handleShow(item.component.show, index, scope.row)"
@@ -322,24 +243,15 @@
                                 v-if="handleShow(item2.show, index2, item2)"
                             >
                                 <template slot-scope="scope">
-                                    <el-input
-                                        v-if="item2.component && item2.component.name === 'el-input'"
-                                        v-show="handleShow(item2.component.show, index2, scope.row)"
+                                    <component
+                                        v-if="item2.component && isSingleComponent(item2.component.name)"
+                                        :is="item2.component.name"
                                         :disabled="handleDisabled(item2.component.disabled, scope.$index, scope.row)"
                                         v-model="scope.row[item2.key]"
                                         v-bind="item2.component"
                                         @change="cellDataChange(scope,item2)"
                                     >
-                                    </el-input>
-                                    <el-input-number
-                                        v-else-if="item2.component && item2.component.name === 'el-input-number'"
-                                        v-show="handleShow(item2.component.show, index2, scope.row)"
-                                        :disabled="handleDisabled(item2.component.disabled, scope.$index, scope.row)"
-                                        v-model="scope.row[item2.key]"
-                                        v-bind="item2.component"
-                                        @change="cellDataChange(scope,item2)"
-                                    >
-                                    </el-input-number>
+                                    </component>
                                     <el-radio-group
                                         v-else-if="item2.component && item2.component.name === 'el-radio'"
                                         v-show="handleShow(item2.component.show, index2, scope.row)"
@@ -409,78 +321,6 @@
                                         >
                                         </el-option>
                                     </el-select>
-                                    <el-cascader
-                                        v-else-if="item2.component && item2.component.name === 'el-cascader'"
-                                        v-show="handleShow(item2.component.show, index2, scope.row)"
-                                        :disabled="handleDisabled(item2.component.disabled, scope.$index, scope.row)"
-                                        v-model="scope.row[item2.key]"
-                                        v-bind="item2.component"
-                                        @change="cellDataChange(scope,item2)"
-                                    >
-                                    </el-cascader>
-                                    <el-switch
-                                        v-else-if="item2.component && item2.component.name === 'el-switch'"
-                                        v-show="handleShow(item2.component.show, index2, scope.row)"
-                                        :disabled="handleDisabled(item2.component.disabled, scope.$index, scope.row)"
-                                        v-model="scope.row[item2.key]"
-                                        v-bind="item2.component"
-                                        @change="cellDataChange(scope,item2)"
-                                    >
-                                    </el-switch>
-                                    <el-slider
-                                        v-else-if="item2.component && item2.component.name === 'el-slider'"
-                                        v-show="handleShow(item2.component.show, index2, scope.row)"
-                                        :disabled="handleDisabled(item2.component.disabled, scope.$index, scope.row)"
-                                        v-model="scope.row[item2.key]"
-                                        v-bind="item2.component"
-                                        @change="cellDataChange(scope,item2)"
-                                    >
-                                    </el-slider>
-                                    <el-time-select
-                                        v-else-if="item2.component && item2.component.name === 'el-time-select'"
-                                        v-show="handleShow(item2.component.show, index2, scope.row)"
-                                        :disabled="handleDisabled(item2.component.disabled, scope.$index, scope.row)"
-                                        v-model="scope.row[item2.key]"
-                                        v-bind="item2.component"
-                                        @change="cellDataChange(scope,item2)"
-                                    >
-                                    </el-time-select>
-                                    <el-time-picker
-                                        v-else-if="item2.component && item2.component.name === 'el-time-picker'"
-                                        v-show="handleShow(item2.component.show, index2, scope.row)"
-                                        :disabled="handleDisabled(item2.component.disabled, scope.$index, scope.row)"
-                                        v-model="scope.row[item2.key]"
-                                        v-bind="item2.component"
-                                        @change="cellDataChange(scope,item2)"
-                                    >
-                                    </el-time-picker>
-                                    <el-date-picker
-                                        v-else-if="item2.component && item2.component.name === 'el-date-picker'"
-                                        v-show="handleShow(item2.component.show, index2, scope.row)"
-                                        :disabled="handleDisabled(item2.component.disabled, scope.$index, scope.row)"
-                                        v-model="scope.row[item2.key]"
-                                        v-bind="item2.component"
-                                        @change="cellDataChange(scope,item2)"
-                                    >
-                                    </el-date-picker>
-                                    <el-rate
-                                        v-else-if="item2.component && item2.component.name === 'el-rate'"
-                                        v-show="handleShow(item2.component.show, index2, scope.row)"
-                                        :disabled="handleDisabled(item2.component.disabled, scope.$index, scope.row)"
-                                        v-model="scope.row[item2.key]"
-                                        v-bind="item2.component"
-                                        @change="cellDataChange(scope,item2)"
-                                    >
-                                    </el-rate>
-                                    <el-color-picker
-                                        v-else-if="item2.component && item2.component.name === 'el-color-picker'"
-                                        v-show="handleShow(item2.component.show, index2, scope.row)"
-                                        :disabled="handleDisabled(item2.component.disabled, scope.$index, scope.row)"
-                                        v-model="scope.row[item2.key]"
-                                        v-bind="item2.component"
-                                        @change="cellDataChange(scope,item2)"
-                                    >
-                                    </el-color-picker>
                                     <render-custom-component
                                         v-else-if="item2.component && item2.component.name"
                                         v-show="handleShow(item2.component.show, index2, scope.row)"
@@ -511,24 +351,15 @@
                                             v-if="handleShow(item3.show, index3, item3)"
                                         >
                                             <template slot-scope="scope">
-                                                <el-input
-                                                    v-if="item3.component && item3.component.name === 'el-input'"
-                                                    v-show="handleShow(item3.component.show, index3, scope.row)"
+                                                <component
+                                                    v-if="item3.component && isSingleComponent(item3.component.name)"
+                                                    :is="item3.component.name"
                                                     :disabled="handleDisabled(item3.component.disabled, scope.$index, scope.row)"
                                                     v-model="scope.row[item3.key]"
                                                     v-bind="item3.component"
                                                     @change="cellDataChange(scope,item3)"
                                                 >
-                                                </el-input>
-                                                <el-input-number
-                                                    v-else-if="item3.component && item3.component.name === 'el-input-number'"
-                                                    v-show="handleShow(item3.component.show, index3, scope.row)"
-                                                    :disabled="handleDisabled(item3.component.disabled, scope.$index, scope.row)"
-                                                    v-model="scope.row[item3.key]"
-                                                    v-bind="item3.component"
-                                                    @change="cellDataChange(scope,item3)"
-                                                >
-                                                </el-input-number>
+                                                </component>
                                                 <el-radio-group
                                                     v-else-if="item3.component && item3.component.name === 'el-radio'"
                                                     v-show="handleShow(item3.component.show, index3, scope.row)"
@@ -598,78 +429,6 @@
                                                     >
                                                     </el-option>
                                                 </el-select>
-                                                <el-cascader
-                                                    v-else-if="item3.component && item3.component.name === 'el-cascader'"
-                                                    v-show="handleShow(item3.component.show, index3, scope.row)"
-                                                    :disabled="handleDisabled(item3.component.disabled, scope.$index, scope.row)"
-                                                    v-model="scope.row[item3.key]"
-                                                    v-bind="item3.component"
-                                                    @change="cellDataChange(scope,item3)"
-                                                >
-                                                </el-cascader>
-                                                <el-switch
-                                                    v-else-if="item3.component && item3.component.name === 'el-switch'"
-                                                    v-show="handleShow(item3.component.show, index3, scope.row)"
-                                                    :disabled="handleDisabled(item3.component.disabled, scope.$index, scope.row)"
-                                                    v-model="scope.row[item3.key]"
-                                                    v-bind="item3.component"
-                                                    @change="cellDataChange(scope,item3)"
-                                                >
-                                                </el-switch>
-                                                <el-slider
-                                                    v-else-if="item3.component && item3.component.name === 'el-slider'"
-                                                    v-show="handleShow(item3.component.show, index3, scope.row)"
-                                                    :disabled="handleDisabled(item3.component.disabled, scope.$index, scope.row)"
-                                                    v-model="scope.row[item3.key]"
-                                                    v-bind="item3.component"
-                                                    @change="cellDataChange(scope,item3)"
-                                                >
-                                                </el-slider>
-                                                <el-time-select
-                                                    v-else-if="item3.component && item3.component.name === 'el-time-select'"
-                                                    v-show="handleShow(item3.component.show, index3, scope.row)"
-                                                    :disabled="handleDisabled(item3.component.disabled, scope.$index, scope.row)"
-                                                    v-model="scope.row[item3.key]"
-                                                    v-bind="item3.component"
-                                                    @change="cellDataChange(scope,item3)"
-                                                >
-                                                </el-time-select>
-                                                <el-time-picker
-                                                    v-else-if="item3.component && item3.component.name === 'el-time-picker'"
-                                                    v-show="handleShow(item3.component.show, index3, scope.row)"
-                                                    :disabled="handleDisabled(item3.component.disabled, scope.$index, scope.row)"
-                                                    v-model="scope.row[item3.key]"
-                                                    v-bind="item3.component"
-                                                    @change="cellDataChange(scope,item3)"
-                                                >
-                                                </el-time-picker>
-                                                <el-date-picker
-                                                    v-else-if="item3.component && item3.component.name === 'el-date-picker'"
-                                                    v-show="handleShow(item3.component.show, index3, scope.row)"
-                                                    :disabled="handleDisabled(item3.component.disabled, scope.$index, scope.row)"
-                                                    v-model="scope.row[item3.key]"
-                                                    v-bind="item3.component"
-                                                    @change="cellDataChange(scope,item3)"
-                                                >
-                                                </el-date-picker>
-                                                <el-rate
-                                                    v-else-if="item3.component && item3.component.name === 'el-rate'"
-                                                    v-show="handleShow(item3.component.show, index3, scope.row)"
-                                                    :disabled="handleDisabled(item3.component.disabled, scope.$index, scope.row)"
-                                                    v-model="scope.row[item3.key]"
-                                                    v-bind="item3.component"
-                                                    @change="cellDataChange(scope,item3)"
-                                                >
-                                                </el-rate>
-                                                <el-color-picker
-                                                    v-else-if="item3.component && item3.component.name === 'el-color-picker'"
-                                                    v-show="handleShow(item3.component.show, index3, scope.row)"
-                                                    :disabled="handleDisabled(item3.component.disabled, scope.$index, scope.row)"
-                                                    v-model="scope.row[item3.key]"
-                                                    v-bind="item3.component"
-                                                    @change="cellDataChange(scope,item3)"
-                                                >
-                                                </el-color-picker>
                                                 <render-custom-component
                                                     v-else-if="item3.component && item3.component.name"
                                                     v-show="handleShow(item3.component.show, index3, scope.row)"
@@ -757,7 +516,7 @@
                 <slot name="append">
                     <div
                         class="tabulation-more"
-                        :class="loadMoreOptions && handleAttribute(loadMoreOptions.loadClass,'')"
+                        :class="isEmpty(loadMoreOptions) && handleAttribute(loadMoreOptions.loadClass,'')"
                         ref="tabulationMore"
                         v-if="isEmpty(loadMoreOptions)"
                     >
@@ -788,6 +547,29 @@
             </template>
         </el-table>
         <!-- 分页 -->
+        <SnAffix
+            :offsetBottom="0"
+            v-if="pagination && !!crudTableDataLength && paginationIsSticky"
+            @scroll="$emit('pagination-sticky',$event)"
+            v-bind="isEmpty(pagination) 
+                ? { offsetBottom:0} 
+                : handleAttribute(pagination.paginationSticky,{ offsetBottom:0 })"
+        >
+            <div class="tabulation-pagination">
+                <el-pagination
+                    v-if="handleShow(pagination.show)"
+                    :layout="handleAttribute(pagination.layout,'total, sizes, prev, pager, next, jumper')"
+                    :background="handleAttribute(pagination.background,true)"
+                    v-bind="pagination"
+                    @size-change="handlePaginationSizeChange"
+                    @current-change="handlePaginationCurrentChange"
+                    @prev-click="handlePaginationPrevClick"
+                    @next-click="handlePaginationNextClick"
+                >
+                    <slot name="pageSlot"></slot>
+                </el-pagination>
+            </div>
+        </SnAffix>
         <div
             class="tabulation-pagination"
             v-if="pagination && !!crudTableDataLength"
@@ -830,6 +612,7 @@ const ElDateSelect = () => import("element-ui/lib/date-picker");
 const ElRate = () => import("element-ui/lib/rate");
 const ElColorPicker = () => import("element-ui/lib/color-picker");
 const ELTooltip = () => import("element-ui/lib/tooltip");
+const SnAffix = () => import("./components/StickAffix");
 
 import ElLoading from "element-ui/lib/loading";
 
@@ -845,15 +628,24 @@ const LoadingTips = () => import("../LoadingTips");
 /* 表格需要的方法 */
 import Base from "./mixin/base";
 import Data from "./mixin/data";
-import Utils from "./mixin/utils";
+import Utils from "../Utils/mixins";
 import HandleRow from "./mixin/handleRow";
 import selectionIndex from "./mixin/handleSelect";
 import Pagination from "./mixin/pagination";
 import Scroll from "./mixin/scroll";
-
+import HeaderStick from "./mixin/headerStick";
 export default {
     name: "Tabulation",
-    mixins: [Base, Data, Utils, HandleRow, selectionIndex, Pagination, Scroll],
+    mixins: [
+        Base,
+        Data,
+        Utils,
+        HandleRow,
+        selectionIndex,
+        Pagination,
+        Scroll,
+        HeaderStick,
+    ],
     components: {
         ElTable,
         ElTableColumn,
@@ -879,6 +671,7 @@ export default {
         renderCustomComponent,
         LoadingTips,
         ELTooltip,
+        SnAffix,
     },
 };
 </script>

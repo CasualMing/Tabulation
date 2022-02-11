@@ -1,9 +1,9 @@
 <!--
  * @Author: CasualMing
  * @Date: 2021-11-24 14:23:10
- * @LastEditTime: 2021-11-24 14:49:10
+ * @LastEditTime: 2022-02-11 09:06:15
  * @Description: 用于渲染自定义组件
- * @FilePath: \sinosun-operation-ui\components\Tabulation\components\renderCustomComponent.vue
+ * @FilePath: \tabulation\src\components\renderCustomComponent.vue
 -->
 <script>
 export default {

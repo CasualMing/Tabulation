@@ -1,9 +1,9 @@
 /*
  * @Author: CasualMing
  * @Date: 2021-11-24 10:06:56
- * @LastEditTime: 2021-12-10 14:52:55
+ * @LastEditTime: 2022-02-11 09:07:13
  * @Description: 基本的数据接收及方法
- * @FilePath: \sinosun-operation-ui\components\Tabulation\mixin\base.js
+ * @FilePath: \tabulation\src\mixin\base.js
  */
 export default {
     props: {
@@ -117,6 +117,11 @@ export default {
                 // 以上述配置开始观察目标节点
                 observer.observe(El, config);
             })
+        },
+
+        isSingleComponent(name) {
+            const singles = ['el-input', 'el-input-number', 'el-switch', 'el-slider', 'el-time-select', 'el-time-picker', 'el-date-picker', 'el-rate', 'el-color-picker', ];
+            return singles.includes(name)
         }
     },
     mounted() {
